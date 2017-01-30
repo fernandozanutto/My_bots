@@ -46,6 +46,9 @@ local LaningState=LaningStates.Moving;
 function  OnStart()
 	print("Laning!");
 	local npcBot=GetBot();
+
+	print(npcBot:GetUnitName())
+
 	npcBot.BackTimerGen = -1000;
 	
 	local tp=Utility.IsItemAvailable("item_tpscroll");

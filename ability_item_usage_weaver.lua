@@ -6,6 +6,8 @@ function AbilityUsageThink()
 	
 	local npcBot=GetBot();
 
+	print("MODE: " .. npcBot:GetActiveMode())
+
 	if npcBot:IsUsingAbility() then return end
 
 	theSwarm = npcBot:GetAbilityByName("weaver_the_swarm")
@@ -16,13 +18,17 @@ function AbilityUsageThink()
 	castShukuchi = ConsiderShukuchi()
 	castTimeLapse = ConsiderTimeLapse()
 
+	print(castTheSwarm)
+	print(castShukuchi)
+	print(castTimeLapse)
+
 	if (castTimeLapse>0) then
 		npcBot:Action_UseAbility(timeLapse)
 		return
 	end
 
-	if(castTheSwarm > 0) then
-		npcBot:Action_UseAbilityOnEntity(theSwarm, target)
+	if(castTheSwarm > 0 and castTheSwarm > castShukuchi) then
+		npcBot:Action_UseAbilityOnLocation(theSwarm, target:GetLocation())
 	end
 
 	if (castShukuchi > 0) then
@@ -33,9 +39,12 @@ end
 
 
 function ConsiderTheSwarm()
+
 	--TODO change this to target as many heroes as possible
 	local npcBot = GetBot();
+	
 	if( not theSwarm:IsFullyCastable() ) then
+
 		return BOT_ACTION_DESIRE_NONE
 	end
 
@@ -53,22 +62,24 @@ function ConsiderTheSwarm()
 		end
 	end
 
-	if (npcMode == BOT_MODE_LANING) then
-
+	if (npcMode == BOT_MODE_LANING and #npcBot:GetNearbyTowers(1200, true)==0) then
+		
 		damage = 0
 
-		local nearbyAllies = npc:GetNearbyHeroes(1200, false, BOT_MODE_NONE)
+		local nearbyAllies = npcBot:GetNearbyHeroes(1200, false, BOT_MODE_NONE)
 		local nearbyEnemies = npcBot:GetNearbyHeroes(900, true, BOT_MODE_NONE)
 
 		for _, enemy in pairs (nearbyEnemies) do
 			for _, ally in pairs (nearbyAllies) do
 				damage = damage + ally:GetEstimatedDamageToTarget(true, enemy, 7, DAMAGE_TYPE_ALL)
 			end
-
+			
 			if damage > enemy:GetHealth()*0.7 then
+				
 				return BOT_ACTION_DESIRE_MODERATE, enemy
 			end
 		end
+	end
 
 	return BOT_ACTION_DESIRE_NONE, 0
 
@@ -117,9 +128,12 @@ function ConsiderTimeLapse()
 		return BOT_ACTION_DESIRE_NONE
 	end
 
+	local nearbyEnemies = npcBot:GetNearbyHeroes(800, true, BOT_MODE_NONE);
+
 
 	--if weaver is in danger
-	if((npcBot:GetNearbyHeroes(800, true, BOT_MODE_NONE)>0) and (npcBot:GetHealth() < npcBot:GetMaxHealth()*0.25)) then
+	if(	#nearbyEnemies>0 and (npcBot:GetHealth() < npcBot:GetMaxHealth()*0.25)) then
+		
 		return BOT_ACTION_DESIRE_HIGH
 	end
 

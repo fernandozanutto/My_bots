@@ -65,13 +65,14 @@ local function Updates()
 	
 	local clanepos=GetLaneFrontAmount(GetTeam(),CurLane,false);
 	local cpos=GetLocationAlongLane(CurLane,Max(Min(clanepos-0.05,0.8),0.15));
---	DebugDrawCircle( cpos, 300, 100, 0, 50 )
+	--DebugDrawCircle( cpos, 300, 100, 0, 50 )
 	
 	
 end
 
 
 function OnStart()
+	Updates();
 	mode_generic_laning.OnStart();
 	if DotaTime()>2 then
 		LoadUpdates();

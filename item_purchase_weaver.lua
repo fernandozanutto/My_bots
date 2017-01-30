@@ -2,12 +2,16 @@
 --- AUTHOR: PLATINUM_DOTA2 (Pooya J.)
 --- EMAIL ADDRESS: platinum.dota2@gmail.com
 ------------------------------------------------------------
+local pontosQ =0;
+local pontosW = 0;
+local pontosE = 0;
+local pontosR = 0;
 
 local AbilityPriority = {
 "weaver_shukuchi",
 "weaver_geminate_attack",
-"weaver_shukuchi",
 "weaver_the_swarm",
+"weaver_shukuchi",
 "weaver_shukuchi",
 "weaver_time_lapse",
 "weaver_shukuchi",
@@ -63,6 +67,8 @@ local function LevelUp()
 
 	if (ability~=nil and ability:CanAbilityBeUpgraded() and ability:GetLevel()<ability:GetMaxLevel()) then
 		npcBot:Action_LevelAbility(AbilityPriority[1]);
+		table.remove( AbilityPriority, 1 );
+	else
 		table.remove( AbilityPriority, 1 );
 	end
 end
