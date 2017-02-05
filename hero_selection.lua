@@ -3,7 +3,7 @@
 --- EMAIL ADDRESS: platinum.dota2@gmail.com
 ------------------------------------------------------------
 
-local MyBots={"npc_dota_hero_weaver", "npc_dota_hero_vengefulspirit", "npc_dota_hero_warlock", "npc_dota_hero_nevermore", "npc_dota_hero_luna"};
+local MyBots={"npc_dota_hero_weaver", "npc_dota_hero_ursa"};
 
 function Think()
 	local IDs=GetTeamPlayers(GetTeam());

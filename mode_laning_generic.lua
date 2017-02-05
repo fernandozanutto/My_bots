@@ -44,11 +44,7 @@ local LaningStates={
 local LaningState=LaningStates.Moving;
 
 function  OnStart()
-	print("Laning!");
 	local npcBot=GetBot();
-
-	print(npcBot:GetUnitName())
-
 	npcBot.BackTimerGen = -1000;
 	
 	local tp=Utility.IsItemAvailable("item_tpscroll");
@@ -134,7 +130,7 @@ local function Start()
 	else
 		npcBot:Action_MoveToLocation(GetLocationAlongLane(CurLane,0.25));
 	end
-	local AllyCreeps=npcBot:GetNearbyCreeps(EyeRange,false);
+	local AllyCreeps=npcBot:GetNearbyLaneCreeps(EyeRange,false);
 	if (#AllyCreeps>0) then
 		LaningState=LaningStates.Moving;
 	end
@@ -155,7 +151,7 @@ local function Moving()
 		npcBot:Action_MoveToLocation(target);
 	end
 	
-	local EnemyCreeps=npcBot:GetNearbyCreeps(EyeRange,true);
+	local EnemyCreeps=npcBot:GetNearbyLaneCreeps(EyeRange,true);
 	
 	local nCr=0;
 	
@@ -173,7 +169,7 @@ end
 local function MovingToPos()
 	local npcBot=GetBot();
 	
-	local EnemyCreeps=npcBot:GetNearbyCreeps(EyeRange,true);
+	local EnemyCreeps=npcBot:GetNearbyLaneCreeps(EyeRange,true);
 	
 	local cpos=GetLaneFrontLocation(Utility.GetOtherTeam(),CurLane,0.0);
 	local bpos=GetLocationAlongLane(CurLane,LanePos-0.02);
@@ -192,8 +188,8 @@ end
 local function GetReadyForCS()
 	local npcBot=GetBot();
 	
-	local AllyCreeps=npcBot:GetNearbyCreeps(EyeRange,false);
-	local EnemyCreeps=npcBot:GetNearbyCreeps(EyeRange,true);
+	local AllyCreeps=npcBot:GetNearbyLaneCreeps(EyeRange,false);
+	local EnemyCreeps=npcBot:GetNearbyLaneCreeps(EyeRange,true);
 end
 
 local function WaitingForCS()
@@ -202,7 +198,7 @@ end
 local function GettingBack()
 	local npcBot=GetBot();
 	
-	local AllyCreeps=npcBot:GetNearbyCreeps(EyeRange,false);
+	local AllyCreeps=npcBot:GetNearbyLaneCreeps(EyeRange,false);
 	local AllyTowers=npcBot:GetNearbyTowers(EyeRange,false);
 	
 	if #AllyCreeps>0 or LanePos<0.18 then
@@ -221,7 +217,7 @@ end
 local function DenyNearbyCreeps()
 	local npcBot=GetBot();
 
-	local AllyCreeps=npcBot:GetNearbyCreeps(EyeRange,false);
+	local AllyCreeps=npcBot:GetNearbyLaneCreeps(EyeRange,false);
 	if AllyCreeps==nil or #AllyCreeps==0 then
 		return false;
 	end
@@ -232,7 +228,7 @@ local function DenyNearbyCreeps()
 		return false;
 	end
 	
-	local EnemyCreeps=npcBot:GetNearbyCreeps(EyeRange,true);
+	local EnemyCreeps=npcBot:GetNearbyLaneCreeps(EyeRange,true);
 	local nEc=0;
 	
 	if EnemyCreeps~=nil and #EnemyCreeps>0 then
@@ -257,14 +253,14 @@ end
 local function DenyCreeps()
 	local npcBot=GetBot();
 
-	local AllyCreeps=npcBot:GetNearbyCreeps(EyeRange,false);
+	local AllyCreeps=npcBot:GetNearbyLaneCreeps(EyeRange,false);
 	if AllyCreeps==nil or #AllyCreeps==0 then
 		return false;
 	end
 	
 	local WeakestCreep=GetWeakestCreep(AllyCreeps);
 	
-	local EnemyCreeps=npcBot:GetNearbyCreeps(EyeRange,true);
+	local EnemyCreeps=npcBot:GetNearbyLaneCreeps(EyeRange,true);
 	local nEc=0;
 	
 	if EnemyCreeps~=nil and #EnemyCreeps>0 then
@@ -311,8 +307,8 @@ end
 local function CSing()
 	local npcBot=GetBot();
 	
-	local AllyCreeps=npcBot:GetNearbyCreeps(EyeRange,false);
-	local EnemyCreeps=npcBot:GetNearbyCreeps(EyeRange,true);
+	local AllyCreeps=npcBot:GetNearbyLaneCreeps(EyeRange,false);
+	local EnemyCreeps=npcBot:GetNearbyLaneCreeps(EyeRange,true);
 	local AllyTowers=npcBot:GetNearbyTowers(900,false);
 	
 	if (AllyCreeps==nil) or (#AllyCreeps==0) then

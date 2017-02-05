@@ -6,8 +6,6 @@ function AbilityUsageThink()
 	
 	local npcBot=GetBot();
 
-	print("MODE: " .. npcBot:GetActiveMode())
-
 	if npcBot:IsUsingAbility() then return end
 
 	theSwarm = npcBot:GetAbilityByName("weaver_the_swarm")
@@ -15,24 +13,25 @@ function AbilityUsageThink()
 	timeLapse = npcBot:GetAbilityByName("weaver_time_lapse")
 
 	castTheSwarm, target = ConsiderTheSwarm()
-	castShukuchi = ConsiderShukuchi()
+	castShukuchi, targetShukuchi = ConsiderShukuchi()
 	castTimeLapse = ConsiderTimeLapse()
-
-	print(castTheSwarm)
-	print(castShukuchi)
-	print(castTimeLapse)
 
 	if (castTimeLapse>0) then
 		npcBot:Action_UseAbility(timeLapse)
 		return
 	end
 
-	if(castTheSwarm > 0 and castTheSwarm > castShukuchi) then
+	if(castTheSwarm > 0 and castTheSwarm > castShukuchi and target~=nil) then
 		npcBot:Action_UseAbilityOnLocation(theSwarm, target:GetLocation())
 	end
 
 	if (castShukuchi > 0) then
-		npcBot:Action_UseAbility(shukuchi)
+		if targetShukuchi ~= nil then
+			npcBot:Action_UseAbility(shukuchi)
+			npcBot:Action_MoveToLocation(targetShukuchi:GetLocation())
+		else
+			npcBot:Action_UseAbility(shukuchi)
+		end
 	end
 
 end
@@ -44,27 +43,15 @@ function ConsiderTheSwarm()
 	local npcBot = GetBot();
 	
 	if( not theSwarm:IsFullyCastable() ) then
-
 		return BOT_ACTION_DESIRE_NONE
 	end
 
 	local npcMode = npcBot:GetActiveMode()
 
-	if (npcMode == BOT_MODE_GANK or
-		npcMode == BOT_MODE_ROAM or
-		npcMode == BOT_MODE_TEAM_ROAM or
-		npcMode == BOT_MODE_DEFEND_ALLY) then
 
-		local npcTarget = npcBot:GetTarget()
-
-		if (npcTarget ~= nil) then
-			return BOT_ACTION_DESIRE_HIGH, npcTarget:GetLocation()
-		end
-	end
-
-	if (npcMode == BOT_MODE_LANING and #npcBot:GetNearbyTowers(1200, true)==0) then
+	if (npcMode == BOT_MODE_LANING and #npcBot:GetNearbyTowers(1500 + GetUnitToUnitDistance(npcBot, npcTarget), true)==0 and npcBot:GetMana()>200) then
 		
-		damage = 0
+		local damage = 0
 
 		local nearbyAllies = npcBot:GetNearbyHeroes(1200, false, BOT_MODE_NONE)
 		local nearbyEnemies = npcBot:GetNearbyHeroes(900, true, BOT_MODE_NONE)
@@ -78,6 +65,7 @@ function ConsiderTheSwarm()
 				
 				return BOT_ACTION_DESIRE_MODERATE, enemy
 			end
+			return BOT_ACTION_DESIRE_HIGH, enemy;
 		end
 	end
 
@@ -99,22 +87,23 @@ function ConsiderShukuchi()
 	local npcMode = npcBot:GetActiveMode()
 	
 
-	if (npcMode == BOT_MODE_RETREAT) then
+	if (npcMode == BOT_MODE_RETREAT and npcBot:GetHealth() < npcBot:GetMaxHealth()*0.3) then
 		return BOT_ACTION_DESIRE_HIGH
 	end
 
 
-	if (npcMode == BOT_MODE_GANK or
+	--[[if (npcMode == BOT_MODE_GANK or
 		npcMode == BOT_MODE_ROAM or
 		npcMode == BOT_MODE_TEAM_ROAM or
-		npcMode == BOT_MODE_DEFEND_ALLY) then
+		npcMode == BOT_MODE_DEFEND_ALLY or
+		npcMode == BOT_MODE_ATTACK) then
 
 		local npcTarget = npcBot:GetTarget()
 
 		if (npcTarget ~= nil) then
-			return BOT_ACTION_DESIRE_HIGH
+			return BOT_ACTION_DESIRE_HIGH, npcTarget
 		end
-	end
+	end]]
 
 	return BOT_ACTION_DESIRE_NONE
 

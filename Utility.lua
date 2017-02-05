@@ -74,8 +74,8 @@ Vector(-4377,3825)
 ------------------------------
 Utility.SIDE_SHOP_TOP = Vector(-7220,4430);
 Utility.SIDE_SHOP_BOT = Vector(7249,-4113);
-Utility.SECRET_SHOP_RADIANT = Vector(-4472,1328);
-Utility.SECRET_SHOP_DIRE = Vector(4586,-1588);
+Utility.SECRET_SHOP_RADIANT = Vector(-4766,1316);
+Utility.SECRET_SHOP_DIRE = Vector(4635,-1480);
 Utility.ROSHAN = Vector(-2450, 1880);
 
 Utility.RuneSpots={
@@ -86,6 +86,8 @@ RUNE_BOUNTY_2,
 RUNE_BOUNTY_3,
 RUNE_BOUNTY_4
 };
+
+Utility.Shrines={SHRINE_BASE_1, SHRINE_BASE_2, SHRINE_BASE_3, SHRINE_BASE_4, SHRINE_BASE_5, SHRINE_JUNGLE_1, SHRINE_JUNGLE_2};
 
 function Utility.GetDistance(s,t)
 	return math.sqrt((s[1]-t[1])*(s[1]-t[1]) + (s[2]-t[2])*(s[2]-t[2]));
@@ -153,6 +155,8 @@ function Utility.GetTowerLocation(side,lane,n) --0 radiant 1 dire
 	end
 	return nil;
 end
+
+
 
 Utility.RadiantSafeSpots={
 	Vector(4088,-3919),
@@ -263,7 +267,7 @@ function Utility.GetWardingSpot(lane)
 --			end
 		elseif lane==LANE_TOP then
 			if Utility.NotNilOrDead(t1) then
-				return Vector(-6120,3282);
+				return Vector(-6180,3624);
 			elseif Utility.NotNilOrDead(t2) then
 				return Vector(-5128,2065);
 			else
@@ -274,7 +278,7 @@ function Utility.GetWardingSpot(lane)
 end
 
 function Utility.NotNilOrDead(unit)
-	if unit==nil then
+	if unit==nil or unit:IsNull() then
 		return false;
 	end
 	if unit:IsAlive() then
@@ -330,14 +334,26 @@ end
 
 function Utility.DropJunks()
 	local npcBot=GetBot();
+
+	if Utility.NumberOfItems()<=5 or npcBot:IsChanneling() then
+		return;
+	end
 	
 	item=Utility.IsItemAvailable("item_tpscroll");
-	if item~=nil and (not item:IsFullyCastable()) then
+	if npcBot:GetActiveMode()~=BOT_MODE_EVASIVE_MANEUVERS and item~=nil and (not item:IsFullyCastable()) then
 		npcBot:Action_SellItem(item);
 		return;
 	end
-
-	if Utility.NumberOfItems()<=5 or npcBot:IsChanneling() then
+	
+	item=Utility.IsItemAvailable("item_flask");
+	if item~=nil then
+		npcBot:Action_SellItem(item);
+		return;
+	end
+	
+	item=Utility.IsItemAvailable("item_clarity");
+	if item~=nil then
+		npcBot:Action_SellItem(item);
 		return;
 	end
 	
@@ -354,18 +370,6 @@ function Utility.DropJunks()
 	end
 	
 	item=Utility.IsItemAvailable("item_poor_mans_shield");
-	if item~=nil then
-		npcBot:Action_SellItem(item);
-		return;
-	end
-	
-	item=Utility.IsItemAvailable("item_tpscroll");
-	if item~=nil then
-		npcBot:Action_SellItem(item);
-		return;
-	end
-	
-	item=Utility.IsItemAvailable("item_flask");
 	if item~=nil then
 		npcBot:Action_SellItem(item);
 		return;
@@ -591,7 +595,7 @@ end
 function Utility.GetWeakestCreep(r)
 	local npcBot = GetBot();
 	
-	local EnemyCreeps = npcBot:GetNearbyCreeps(r,true);
+	local EnemyCreeps = npcBot:GetNearbyLaneCreeps(r,true);
 	
 	if EnemyCreeps==nil or #EnemyCreeps==0 then
 		return nil,10000;
@@ -691,13 +695,14 @@ end
 
 function Utility.GetHeroLevel()
     local npcBot = GetBot();
-    local respawnTable = {8, 10, 12, 14, 16, 26, 28, 30, 32, 34, 36, 46, 48, 50, 52, 54, 56, 66, 70, 74, 78,  82, 86, 90, 100};
-    local nRespawnTime = npcBot:GetRespawnTime() +1;
-    for k,v in pairs (respawnTable) do
-        if v == nRespawnTime then
-        return k;
-        end
-    end
+	return npcBot:GetLevel();
+--    local respawnTable = {8, 10, 12, 14, 16, 26, 28, 30, 32, 34, 36, 46, 48, 50, 52, 54, 56, 66, 70, 74, 78,  82, 86, 90, 100};
+--    local nRespawnTime = npcBot:GetRespawnTime() +1;
+--    for k,v in pairs (respawnTable) do
+--        if v == nRespawnTime then
+--        return k;
+--        end
+--    end
 end
 
 function Utility.IsAvailable(unit)
@@ -751,13 +756,24 @@ function Utility.GetLaneTower(team,lane,i)
 	return nil;
 end
 
+function Utility.NumberOfDeadTowers(team,lane)
+	local s=0;
+	for i=1,5,1 do
+		local tower= Utility.GetLaneTower(team,lane,i);
+		if not Utility.NotNilOrDead(tower) then
+			s=s+1;
+		end
+	end
+	return s;
+end
+
 function Utility.IsItemAvailable(item_name)
     local npcBot = GetBot();
 
     for i = 0, 5, 1 do
         local item = npcBot:GetItemInSlot(i);
 		if (item~=nil) then
-			if(item and item:IsFullyCastable() and item:GetName() == item_name) then
+			if(item:GetName() == item_name) then
 				return item;
 			end
 		end
@@ -815,6 +831,63 @@ function Utility.IsInTowerRange(unit,enemy)
     end
 	
     return closesttower;
+end
+
+function Utility.GetTargetBuilding()
+	local npcBot=GetBot();
+	
+	local WeakestRacks=nil;
+	local LowestHealth=10000;
+	
+	for i=0,5,1 do
+		local racks=GetBarracks(Utility.GetOtherTeam(),i);
+		if racks~=nil and racks:IsAlive() and (not racks:IsInvulnerable()) and racks:CanBeSeen() and LowestHealth>racks:GetHealth() and GetUnitToUnitDistance(racks,npcBot)<850 then
+			WeakestRacks=racks;
+			LowestHealth=racks:GetHealth();
+		end
+	end
+	
+	if WeakestRacks~=nil then
+		return WeakestRacks,LowestHealth;
+	end
+	
+	LowestHealth=10000;
+	
+	local Towers=npcBot:GetNearbyTowers(900,true);
+	if Towers~=nil and #Towers>0 then
+		local Tower=nil;
+		for _,tower in pairs(Towers) do
+			if Utility.NotNilOrDead(tower) and (not tower:IsInvulnerable()) and tower:CanBeSeen() and tower:GetHealth()<LowestHealth then
+				Tower=tower;
+				LowestHealth=tower:GetHealth();
+			end
+		end
+		
+		if Tower~=nil then
+			return Tower,LowestHealth;
+		end
+	end
+	
+	local ancient=GetAncient(Utility.GetOtherTeam());
+	if ancient~=nil and GetUnitToUnitDistance(npcBot,ancient)<900 and (not ancient:IsInvulnerable()) and ancient:CanBeSeen() then
+		return ancient,ancient:GetHealth();
+	end
+	
+	LowestHealth=10000;
+	local Shrine=nil;
+	for _,i in pairs(Utility.Shrines) do
+		local shrine=GetShrine(Utility.GetOtherTeam(),i);
+		if Utility.NotNilOrDead(shrine) and GetUnitToUnitDistance(npcBot,shrine)<800 and shrine:CanBeSeen() and (not shrine:IsInvulnerable()) and shrine:GetHealth()<LowestHealth then
+			Shrine=shrine;
+			LowestHealth=shrine:GetHealth();
+		end
+	end
+	
+	if Shrine~=nil then
+		return Shrine,LowestHealth;
+	end
+
+	return nil,10000;
 end
 
 Utility.Cores={
@@ -892,13 +965,18 @@ Utility.Cores={
 }
 
 function Utility.IsCore(hero)
+	if hero.isCore~=nil then
+		return hero.isCore;
+	end
 	name=hero:GetUnitName();
 	for _,hn in pairs(Utility.Cores)
 	do
 		if name==hn then
+			hero.isCore=true;
 			return true;
 		end
 	end
+	hero.isCore=false;
 	return false;
 end
 
@@ -909,9 +987,10 @@ function Utility.EnemiesNearLocation(loc,dist)
 	
 	local Enemies={};
 	
-	for i =1,5,1 do
-		local enemy=GetTeamMember(Utility.GetOtherTeam(),i);
-		if Utility.NotNilOrDead(enemy) and enemy:GetLastSeenLocation()~=nil and Utility.GetDistance(enemy:GetLastSeenLocation(),loc)<=dist and enemy:GetTimeSinceLastSeen()<30 then
+	for _,enID in pairs(GetTeamPlayers(GetTeam())) do
+		local enemyInfo=GetHeroLastSeenInfo(enID);
+		
+		if IsHeroAlive(enID) and Utility.GetDistance(enemyInfo['location'],loc)<=dist and enemyInfo['time']<30 then
 			table.insert(Enemies,enemy);
 		end
 	end
@@ -927,7 +1006,9 @@ function Utility.ConsiderChangingLane(CurLane)
 	local npcBot=GetBot();
 	local p=false;
 	
-	if GetLaneFrontAmount(Utility.GetOtherTeam(),CurLane,true)<0.6 then
+	
+	local MyLaneFront=Min(GetLaneFrontAmount(Utility.GetOtherTeam(),CurLane,true),GetLaneFrontAmount(GetTeam(),CurLane,true));
+	if MyLaneFront<0.6 then
 		return CurLane;
 	end
 	
@@ -938,7 +1019,7 @@ function Utility.ConsiderChangingLane(CurLane)
 			return LANE_MID;
 		end
 		
-		for _,lane in pairs((Utility.Lanes)) do
+		for _,lane in pairs(Utility.Lanes) do
 			if Utility.AreRacksUp(lane) then
 				print(npcBot:GetUnitName(),'is changing lane.');
 				return lane;
@@ -956,7 +1037,7 @@ end
 function Utility.UseItems()
 	local npcBot = GetBot();
 	
-	if npcBot:IsChanneling() or npcBot:IsUsingAbility() then
+	if npcBot:IsChanneling() or npcBot:IsUsingAbility() or npcBot:IsInvisible() then
 		return -1;
 	end
 	
@@ -973,13 +1054,20 @@ function Utility.UseItems()
 		return -1;
 	end
 	
-		
+	local phase=Utility.IsItemAvailable("item_phase_boots");
+	if phase~=nil and phase:IsFullyCastable() then
+		npcBot:Action_UseAbility(phase);
+		return -1;
+	end
+
+
 	local flask=Utility.IsItemAvailable("item_flask");
     if flask~=nil and flask:IsFullyCastable() then
-		local Enemies=npcBot:GetNearbyHeroes(850,true,BOT_MODE_NONE);
+		local Enemies=npcBot:GetNearbyHeroes(750,true,BOT_MODE_NONE);
 		
 		if Enemies==nil or #Enemies==0 then
-			if npcBot:GetMaxHealth()-npcBot:GetHealth()>320 then
+			if npcBot:GetMaxHealth()-npcBot:GetHealth()>330 and (npcBot.FlaskTimer==nil or DotaTime()-npcBot.FlaskTimer>2) and (not npcBot:HasModifier("modifier_flask_healing")) and (not npcBot:WasRecentlyDamagedByAnyHero(1.5)) and GetUnitToLocationDistance(npcBot,Utility.Fountain(GetTeam()))>3000 then
+				npcBot.FlaskTimer=DotaTime();
 				npcBot:Action_UseAbilityOnEntity(flask,npcBot);
 				return -1;
 			end
@@ -1057,6 +1145,18 @@ function Utility.UseItems()
 		return -1;
 	end
 	
+	local clarity=Utility.IsItemAvailable("item_clarity");
+    if clarity~=nil and clarity:IsFullyCastable() then
+		local Enemies=npcBot:GetNearbyHeroes(700,true,BOT_MODE_NONE);
+		if Enemies==nil or #Enemies==0 then
+			if (npcBot.ClarityTimer==nil or DotaTime()-npcBot.ClarityTimer>2) and npcBot:GetMaxMana()-npcBot:GetMana()>64 and (not npcBot:HasModifier("modifier_clarity_potion")) and (not npcBot:WasRecentlyDamagedByAnyHero(1.5)) and GetUnitToLocationDistance(npcBot,Utility.Fountain(GetTeam()))>3000 then
+				npcBot:Action_UseAbilityOnEntity(clarity,npcBot);
+				npcBot.ClarityTimer=DotaTime();
+				return -1;
+			end
+		end
+	end
+	
 	local arcane=Utility.IsItemAvailable("item_arcane_boots");
     if arcane~=nil and arcane:IsFullyCastable() then
 		if npcBot:GetMaxMana()-npcBot:GetMana()>160 then
@@ -1088,14 +1188,14 @@ function Utility.UseItems()
 		local dest=GetLocationAlongLane(npcBot.CurLane,0.5);
 		if tp:IsFullyCastable() and npcBot:GetActiveMode()==BOT_MODE_LANING and GetUnitToLocationDistance(npcBot,Utility.Fountain(GetTeam()))<2000 then
 			npcBot:Action_UseAbilityOnLocation(tp,dest);
-		elseif not (npcBot:IsUsingAbility() or npcBot:IsChanneling()) then
+		elseif not (npcBot:IsUsingAbility() or npcBot:IsChanneling() or npcBot:GetActiveMode()==BOT_MODE_EVASIVE_MANEUVERS) then
 			npcBot:Action_SellItem(tp);
 		end
 	end
 	
 	local hod=Utility.IsItemAvailable("item_helm_of_the_dominator");
     if hod~=nil and hod:IsFullyCastable() and npcBot:GetActiveMode()==BOT_MODE_PUSH_TOWER_MID then
-		local creeps=npcBot:GetNearbyCreeps(700,true);
+		local creeps=npcBot:GetNearbyLaneCreeps(700,true);
 		for _,creep in pairs(creeps) do
 			if string.find(creep:GetUnitName(),"siege")~=nil then
 				npcBot:Action_UseAbilityOnEntity(hod,creep);
@@ -1137,6 +1237,142 @@ function Utility.AreTreesBetween(loc,r)
 	return false;
 end
 
+function Utility.IsRealHero(unit)
+	if unit.isIllusion~=nil and unit.isIllusion then
+		return false;
+	end
+	return true;
+end
+
+function Utility.GetRealHero(Candidates)
+	if Candidates==nil or #Candidates==0 then
+		return nil;
+	end
+	
+	local q=false;
+	for i,unit in pairs(Candidates) do
+		if unit.isIllusion==nil or (not unit.isIllusion) then
+			q=true;
+		end
+	end
+	
+	if not q then
+		for i,unit in pairs(Candidates) do
+			if unit.isRealHero~=nil and unit.isRealHero then
+				return i,unit;
+			end
+		end
+		return nil;
+	end
+	
+	for i,unit in pairs(Candidates) do
+		if unit:HasModifier("modifier_bloodseeker_thirst_vision") then
+			return i,unit;
+		end
+	end
+	
+	for i,unit in pairs(Candidates) do
+		local int = unit:GetAttributeValue(2);
+		local baseRegen=0.01;
+		if unit:GetUnitName()==npc_dota_hero_techies then
+			baseRegen=0.02;
+		end
+		
+		if math.abs(unit:GetManaRegen()-(baseRegen+0.04*int))>0.001 then
+			return i,unit;
+		end
+	end
+	
+	local hpRegen=Candidates[1]:GetHealthRegen();
+	local suspectind=1;
+	local suspect=Candidates[1];
+	
+	for i,unit in pairs(Candidates) do
+		if hpRegen<unit:GetHealthRegen() then
+			suspect=unit;
+			hpRegen=unit:GetHealthRegen();
+			suspectind=i;
+		end
+	end
+	
+	for _,unit in pairs(Candidates) do
+		if hpRegen>unit:GetHealthRegen() then
+			return suspectind,suspect;
+		end
+	end
+	
+	for i,unit in pairs(Candidates) do
+		if unit:IsUsingAbility() or unit:IsChanneling() then
+			return i,unit;
+		end
+	end
+	
+	if #Candidates==1 and (Candidates[1].isIllusion==nil or (not Candidates[1].isIllusion)) then
+		return 1,Candidates[1];
+	end
+	
+	return nil;
+end
+
+Utility.EnemyHeroListTimer=-1000;
+Utility.EnemyHeroList=nil;
+
+function Utility.GetEnemyTeam()
+	if Utility.EnemyHeroList~=nil and DotaTime()-Utility.EnemyHeroListTimer<0.01 then
+		return Utility.EnemyHeroList;
+	end
+	
+	Utility.EnemyHeroListTimer=DotaTime();
+	Utility.EnemyHeroList={}
+	
+	for _,unit in pairs(GetUnitList(UNIT_LIST_ENEMY_HEROES)) do
+		local q=false;
+		for _,unit2 in pairs(Utility.EnemyHeroList) do
+			if unit2:GetUnitName()==unit:GetUnitName() then
+				q=true;
+			end
+		end
+		
+		if not q then
+			local skip=false;
+			if not Utility.NotNilOrDead(unit) then
+				skip=true;
+			end
+--			if unit.isRealHero~=nil and unit.isRealHero then
+--				table.insert(Utility.EnemyHeroList,unit);
+--				skip=true;
+--			end
+--			if unit.isIllusion~=nil and unit.isIllusion then
+--				skip=true;
+--			end
+		
+			if not skip then
+				local candidates={};
+				for _,unit2 in pairs(GetUnitList(UNIT_LIST_ENEMY_HEROES)) do
+					if Utility.NotNilOrDead(unit2) and unit2:GetUnitName() == unit:GetUnitName() then
+						table.insert(candidates,unit2);
+					end
+				end
+			
+				local ind,hero=Utility.GetRealHero(candidates);
+				if hero~=nil and (hero.isIllusion==nil or (not hero.isIllusion)) then
+					for _,can in pairs(candidates) do
+						can.isIllusion=true;
+						can.isRealHero=false;
+					end
+					
+					hero.isIllusion=false;
+					hero.isRealHero=true;
+					
+					table.insert(Utility.EnemyHeroList,hero);
+				end
+			end
+		end
+	end
+
+	return Utility.EnemyHeroList;
+end
+
 function Utility.FindTarget(dist)
 	--npcBot:GetEstimatedDamageToTarget( true, WeakestCreep, AttackSpeed, DAMAGE_TYPE_PHYSICAL )
 	local npcBot=GetBot();
@@ -1154,8 +1390,8 @@ function Utility.FindTarget(dist)
 	
 	local Towers=npcBot:GetNearbyTowers(1100,true);
 	local AlliedTowers=npcBot:GetNearbyTowers(950,false);
-	local AlliedCreeps=npcBot:GetNearbyCreeps(1000,false);
-	local EnemyCreeps=npcBot:GetNearbyCreeps(700,true);
+	local AlliedCreeps=npcBot:GetNearbyLaneCreeps(1000,false);
+	local EnemyCreeps=npcBot:GetNearbyLaneCreeps(700,true);
 	local nEc=0;
 	local nAc=0;
 	if AlliedCreeps~=nil then
@@ -1183,7 +1419,8 @@ function Utility.FindTarget(dist)
 	local ShredderAQDamage={100,150,200,250};
 	
 	for _,enemy in pairs(Enemies) do
-		if Utility.NotNilOrDead(enemy) and enemy:GetHealth()>0 and GetUnitToLocationDistance(enemy,Utility.Fountain(Utility.GetOtherTeam()))>1350 then
+		if Utility.NotNilOrDead(enemy) and enemy:GetHealth()>0 and GetUnitToLocationDistance(enemy,Utility.Fountain(Utility.GetOtherTeam()))>1350 
+		and Utility.IsRealHero(enemy) then
 			local myDamage=npcBot:GetEstimatedDamageToTarget(true,enemy,4.5,DAMAGE_TYPE_ALL);
 			
 			if string.find(npcBot:GetUnitName(),"shredder")~=nil then
@@ -1198,8 +1435,7 @@ function Utility.FindTarget(dist)
 			end
 
 			local nfriends=0;
-			for j=1,5,1 do
-				local enemy2=GetTeamMember(Utility.GetOtherTeam(),j);
+			for _,enemy2 in pairs(Utility.GetEnemyTeam()) do
 				if Utility.NotNilOrDead(enemy2) and enemy2:GetHealth()>0 then
 					if GetUnitToUnitDistance(enemy,enemy2)<1200 and enemy2:GetHealth()/enemy2:GetMaxHealth()>0.4 then
 						nfriends=nfriends+1;
@@ -1209,12 +1445,12 @@ function Utility.FindTarget(dist)
 			
 			local nMyFriends=0;
 			for j =1,5,1 do
-				local Ally=GetTeamMember(GetTeam(),j);
-				if Utility.NotNilOrDead(Ally) and GetUnitToUnitDistance(enemy,Ally)<1100 then
+				local Ally=GetTeamMember(j);
+				if Utility.NotNilOrDead(Ally) and GetUnitToUnitDistance(enemy,Ally)<1200 then
 					if Ally:GetActiveMode()==BOT_MODE_RETREAT then
 						nMyFriends=nMyFriends+3;
 					else
-						nMyFriends=nMyFriends+1;
+						nMyFriends=nMyFriends+1.1;
 					end
 				end
 			end
@@ -1231,35 +1467,89 @@ function Utility.FindTarget(dist)
 	return candidate,damage,MaxScore;
 end
 
-
------------ added by me
---gets the number of units attacking a creep or hero in 1200 units of  the npc
-function Utility.GetUnitsAttacking(unit)
-
-	local npcBot = GetBot();
-
-	local creepsAround = npcBot:GetNearbyCreeps(1200, false);
-	local heroesAround = npcBot:GetNearbyHeroes(1200, false, BOT_MODE_NONE);
+function Utility.UseCourier()
+	local npcBot=GetBot();
+	local cnum=GetNumCouriers();
 	
-	if((creepsAround==nil or #creepsAround == 0) and (heroesAround==nil or #heroesAround))then
-		return 0;
-	end
+	local courier = nil;
 	
-	local cont = 0;
-	
-	for _,creep in pairs(creepsAround) do
-		if creep:GetAttackTarget() == unit then
-			cont = cont + 1;
+	for i=0,cnum-1,1 do
+		local cour=GetCourier(i);
+		if Utility.NotNilOrDead(cour) and (GetCourierState(cour)==COURIER_STATE_IDLE or GetCourierState(cour)==COURIER_STATE_AT_BASE) then
+			courier=cour;
+		end
+		
+		if cour~=nil and (not cour:IsAlive()) then
+			cour.IsGoingToSecretShop=false;
+			cour.SecretShopTimer=-1000;
 		end
 	end
 	
-	for _, hero in pairs(heroesAround) do
-		if hero:GetAttackTarget() == unit then
-			cont = cont+1;
-		end
+	if courier==nil then
+		return;
 	end
 	
-	return cont;
+	if courier.IsGoingToSecretShop==nil then
+		courier.IsGoingToSecretShop=false;
+		courier.SecretShopTimer=-1000;
+	end
+	
+	if npcBot.CourierTimer==nil then
+		npcBot.CourierTimer=-1000;
+	end
+	
+--	print("--------");
+--	print(npcBot:GetUnitName(),npcBot:GetStashValue(),npcBot:GetCourierValue(),Utility.HasRecipe(),IsCourierAvailable(),(DotaTime()-npcBot.CourierTimer),courier.IsGoingToSecretShop,(GetCourierState(cour)==COURIER_STATE_AT_BASE),(GetCourierState(cour)==COURIER_STATE_IDLE))
+--	-----------------
+	
+	if (npcBot:IsAlive() and (npcBot:GetStashValue()>900 or npcBot:GetCourierValue()>0 or Utility.HasRecipe())) and (npcBot.CourierTimer==nil or DotaTime()-npcBot.CourierTimer>2) and (not courier.IsGoingToSecretShop) then
+		npcBot:Action_Courier(courier,6);
+		npcBot.CourierTimer=DotaTime();
+		return;
+	end
+	
+	if	npcBot.ItemsToBuy==nil or #npcBot.ItemsToBuy==0 or (npcBot.IsGoingToShop~=nil and npcBot.IsGoingToShop) then
+		return;
+	end
+	
+	local NextItem=npcBot.ItemsToBuy[1];
+
+	local secLoc=nil;
+	if GetTeam()==TEAM_RADIANT then
+		secLoc=Utility.SECRET_SHOP_RADIANT;
+	else
+		secLoc=Utility.SECRET_SHOP_DIRE;
+	end
+	
+	
+	if (not IsItemPurchasedFromSecretShop(NextItem)) or (npcBot:GetGold() < GetItemCost(NextItem)) or (npcBot.IsGoingToShop~=nil and npcBot.IsGoingToShop)
+	or ((IsItemPurchasedFromSideShop(NextItem) and npcBot:DistanceFromSideShop()<4000) and GetUnitToLocationDistance(courier,secLoc)>300) then
+		return;
+	end
+	
+	secLoc=Utility.GetSecretShop();
+	
+	if IsItemPurchasedFromSecretShop(NextItem) then
+		if GetUnitToLocationDistance(npcBot,secLoc)>4700 and DotaTime()-courier.SecretShopTimer>2 then
+			npcBot:Action_Courier(courier,COURIER_ACTION_SECRET_SHOP);
+			courier.IsGoingToSecretShop=true;
+			courier.SecretShopTimer=DotaTime();
+			return;
+		end
+		
+		if GetTeam()==TEAM_RADIANT then
+			secLoc=Utility.SECRET_SHOP_RADIANT;
+		else
+			secLoc=Utility.SECRET_SHOP_DIRE;
+		end
+		if GetUnitToLocationDistance(courier,secLoc)<300 then
+			courier.IsGoingToSecretShop=false;
+			courier.SecretShopTimer=-1000;
+			courier:Action_PurchaseItem( NextItem );
+			table.remove( npcBot.ItemsToBuy, 1 );
+			return;
+		end
+	end
 end
 
 return Utility;

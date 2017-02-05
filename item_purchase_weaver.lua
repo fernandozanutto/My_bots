@@ -81,6 +81,7 @@ function ItemPurchaseThink()
 		LevelUp();
 	end
 	
+	
 	if ( npcBot.ItemsToBuy==nil or #npcBot.ItemsToBuy == 0 ) then
 		npcBot:SetNextItemPurchaseValue( 0 );
 		return;
