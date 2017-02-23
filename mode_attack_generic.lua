@@ -22,7 +22,7 @@ function  OnStart()
 		return;
 	end
 	
-	npcBot:Action_Chat("Trying to kill "..npcBot.Target:GetUnitName(),false);
+	npcBot:Action_Chat("Trying to kill "..npcBot.Target:GetUnitName(),true);
 	npcBot.IsAttacking=true;
 end
 

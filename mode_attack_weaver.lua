@@ -75,7 +75,7 @@ local function UseW()
 end
 
 local function GetCloseToTarget(target)
-	print("getting close to target")
+	--print("getting close to target")
 
 	local npcBot = GetBot();
 
@@ -92,7 +92,7 @@ end
 function Think()
 
 	--mode_generic_attack.Think();
-	print(NearEnemy)
+	---print(NearEnemy)
 	local npcBot=GetBot();
 	
 	if (not npcBot.IsAttacking) or npcBot.Target==nil then
@@ -109,7 +109,7 @@ function Think()
 	end
 
 	if not NearEnemy then
-		print("NOT NEAR")
+		--print("NOT NEAR")
 		UseW()
 		if(GetCloseToTarget(npcBot.Target)) then
 			NearEnemy = true
@@ -118,7 +118,7 @@ function Think()
 	end
 	
 	if NearEnemy then
-		print("NEAR")
+		--print("NEAR")
 		npcBot:Action_AttackUnit(npcBot.Target, false);
 		return;
 	end

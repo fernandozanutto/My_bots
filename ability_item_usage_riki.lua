@@ -1,38 +1,38 @@
 
 
 local Abilities = {
-	"ursa_earthshock",
-	"ursa_overpower",
-	"ursa_fury_swipes",
-	"ursa_enrage"
+	"riki_smoke_screen",
+	"riki_blink_strike",
+	"riki_permanent_invisibility",
+	"riki_tricks_of_the_trade"
 }
 
 local Talents = {
-	"special_bonus_attack_damage_25", -- lvl 10 talent
-	"special_bonus_attack_speed_20", --lvl 15 talent
-	"special_bonus_movement_speed_15", --lvl 20 talent
-	"special_bonus_all_stats_14" -- lvl 25 talent
+	"special_bonus_movement_speed_15", -- lvl 10 talent
+	"special_bonus_agility_10", --lvl 15 talent
+	"special_bonus_all_stats_8", --lvl 20 talent
+	"special_bonus_unique_riki_2" -- lvl 25 talent (not sure if the +agi multplier is 1 or 2)
 }
 
 local AbilityPriority = {
-	Abilities[3],
+	Abilities[3], --lvl 1
 	Abilities[2],
 	Abilities[3],
-	Abilities[2],
-	Abilities[3],
+	Abilities[1],
+	Abilities[3], --lvl 5
 	Abilities[4],
 	Abilities[3],
 	Abilities[2],
-	Abilities[1],
-	Talents[1],
-	Abilities[1],
+	Abilities[2],
+	Talents[1],   --lvl 10
 	Abilities[2],
 	Abilities[1],
 	Abilities[1],
-	Talents[2],
-	Abilities[4],
-	Talents[3],
-	Talents[4]
+	Abilities[1],
+	Talents[2],   --lvl 15
+	Abilities[4], --lvl 18
+	Talents[3],   --lvl 20
+	Talents[4]    --lvl 25
 };
 
 

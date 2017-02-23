@@ -79,7 +79,7 @@ function Think()
 		if GetUnitToLocationDistance(npcBot,secLoc)<250 then
 			if npcBot:GetGold() >= GetItemCost( NextItem ) then
 				npcBot.IsGoingToShop=false;
-				npcBot:Action_PurchaseItem( NextItem );
+				npcBot:ActionImmediate_PurchaseItem( NextItem );
 				table.remove( npcBot.ItemsToBuy, 1 );
 				Utility.InitPath();
 				return;

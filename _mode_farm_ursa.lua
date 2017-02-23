@@ -227,7 +227,7 @@ local function Updates()
 	local seconds = math.floor(DotaTime());
 	local sec=seconds % 60;
 	
-	if seconds==30 or (minutes % 2 ==1 and sec==0) then
+	if seconds==30 or (minutes % 2 == 1 and sec==0) then
 		EMCampStatus={true,true,true};
 		HCampStatus={true,true};
 	end
@@ -247,7 +247,7 @@ end
 function GetDesire()
 	local npcBot=GetBot();
 
-	Updates();
+	--[[Updates();
 	
 	if	npcBot.IsJungling==nil then
 		npcBot.IsJungling=true;
@@ -288,7 +288,8 @@ function GetDesire()
 	end
 	
 	npcBot.IsJungling=true;
-	return 0.16;
+	return 0.16;]]
+	return 0;
 end
 
 

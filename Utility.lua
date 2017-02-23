@@ -1545,7 +1545,7 @@ function Utility.UseCourier()
 		if GetUnitToLocationDistance(courier,secLoc)<300 then
 			courier.IsGoingToSecretShop=false;
 			courier.SecretShopTimer=-1000;
-			courier:Action_PurchaseItem( NextItem );
+			courier:ActionImmediate_PurchaseItem( NextItem );
 			table.remove( npcBot.ItemsToBuy, 1 );
 			return;
 		end

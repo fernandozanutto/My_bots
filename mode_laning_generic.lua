@@ -49,7 +49,7 @@ function  OnStart()
 	
 	local tp=Utility.IsItemAvailable("item_tpscroll");
 	if tp==nil and DotaTime()>10 and npcBot:GetGold()>=50 and GetUnitToLocationDistance(npcBot,GetLocationAlongLane(npcBot.CurLane,0.0))<700 and Utility.NumberOfItems()<=5 then
-		npcBot:Action_PurchaseItem("item_tpscroll");
+		npcBot:ActionImmediate_PurchaseItem("item_tpscroll");
 		return;
 	end
 	
