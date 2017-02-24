@@ -14,7 +14,7 @@ local FinalTarget = nil
 function OnStart()
 	local npcBot = GetBot()
 	npcBot.Action = "LookingForGank"
-	
+
 end
 
 
@@ -30,7 +30,7 @@ function UpdateAllies()
 	local npcBot = GetBot()
 
 	for j=1,5,1 do
-		
+
 		local ally=GetTeamMember(j);
 
 		if ally~=nil and ally:GetUnitName() ~= "npc_dota_hero_riki" then
@@ -66,9 +66,9 @@ function GetLaneToGank()
 
 		if #lane ~= 0 and lane~=nil then
 			for _, ally in pairs(lane) do
-				
+
 				if ally ~= nil then
-					
+
 					local EnemiesNearAllies = ally:GetNearbyHeroes(1500, true, BOT_MODE_NONE)
 
 
@@ -83,7 +83,7 @@ function GetLaneToGank()
 
 						for _, enemy in pairs(EnemiesNearAllies) do
 							--print(enemy:GetUnitName() )
-							
+
 							if MyU.HasEscape(enemy) then
 								EnemiesWithEscapes = EnemiesWithEscapes + 1
 							end
@@ -106,8 +106,8 @@ function GetLaneToGank()
 						desire = desire - EnemiesWithEscapes*0.15
 
 						desire = desire - EnemiesWithInvi*0.05
-						
-						desire = desire - EnemiesWithHeals*0.15
+
+						desire = desire - EnemiesWithHeals*0.10
 
 						desire = desire - EnemiesWithDisables*0.15
 
@@ -142,18 +142,12 @@ end
 function GetDesire()
 
 	--local npcBot = GetBot()
-	
+
 	if DotaTime()>30 then
 		return 0.1
 	end
 
 	return 0
-end
-
-
-
-function GankEnemies()
-
 end
 
 

@@ -68,7 +68,8 @@ function MyUtility.HasDisable(unit)
 
 	if  name == "npc_dota_hero_lion" or
 		name == "npc_dota_hero_vengefulspirit" or
-		name == "npc_dota_hero_earth"
+		name == "npc_dota_hero_earth" or
+		name = "npc_dota_hero_centaur"
 	then
 
 		return true
