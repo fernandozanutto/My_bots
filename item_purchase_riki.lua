@@ -3,13 +3,18 @@ local npcBot = GetBot()
 npcBot.ItemsToBuy = {
 	"item_orb_of_venom",
 	"item_tango",
+	"item_blight_stone"
 	"item_boots",
-	"item_ring_of_protection",
-	"item_ring_of_health"
+	"item_magic_wand"
+	"item_blade_of_alacrity",
+	"item_blade_of_alacrity",
+	"item_robe",
+	"item_diffusal_blade_recipe",
+	"item_basher"
 }
 
 
-function ItemPurchaseThink() 
+function ItemPurchaseThink()
 
 	local npcBot = GetBot();
 
@@ -26,5 +31,5 @@ function ItemPurchaseThink()
 			table.remove( npcBot.ItemsToBuy, 1 );
 		end
 	end
-	
+
 end
