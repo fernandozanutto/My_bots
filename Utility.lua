@@ -30,8 +30,8 @@ Utility.Locations = {
 ["RTT3"]= Vector(-6591,-3397),
 ["RadiantTopShrine"]= Vector(-4229,1299),
 ["RadiantBotShrine"]= Vector(622,-2555),
-["RadiantBotRune"]= Vector(1276,-4129),
-["RadiantTopRune"]= Vector(-4351,200),
+["RadiantBotRune"]= Vector(1286,-4129),
+["RadiantTopRune"]= Vector(-4360,202),
 
 ["DireBase"]= Vector(7137,6548),
 ["DBT1"]= Vector(6215,-1639),
@@ -45,7 +45,7 @@ Utility.Locations = {
 ["DTT3"]= Vector(3512,5778),
 ["DireTopShrine"]= Vector(-139,2533),
 ["DireBotShrine"]= Vector(4173,-1613),
-["DireBotRune"]= Vector(3471,295),
+["DireBotRune"]= Vector(3549,384),
 ["DireTopRune"]= Vector(-2821,4147),
 
 ["RadiantEasyAndMedium"]={
