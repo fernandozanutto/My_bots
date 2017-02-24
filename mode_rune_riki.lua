@@ -20,7 +20,7 @@ function OnEnd()
 end
 
 function GetDesire()
-	
+
 	local npcBot=GetBot();
 
 	if DotaTime()<0 then
@@ -36,13 +36,12 @@ function GetDesire()
 
 	if minutes % 2 == 1 then
 		TimeToRuneSpawn = 60 - seconds
-	else 
+	else
 		TimeToRuneSpawn = 120 - seconds
 	end
 
-
-	if npcBot:GetActiveMode() ~= BOT_MOD_ATTACK and TimeToRuneSpawn<20 then
-		return 0.5;
+	if npcBot.Action~="Ganking" or MyU.GetDistanceToClosestRune()<1000 then
+		return 0.5
 	end
 
 	return 0.0;
@@ -51,11 +50,10 @@ end
 function Think()
 	local npcBot=GetBot();
 
-
-	if DotaTime()<0 then
+	if DotaTime()<-1 then
 		npcBot:Action_MoveToLocation(Utility.Locations["DireBotRune"])
 	end
-	
+
 	for _,r in pairs(Utility.RuneSpots) do
 		local loc=GetRuneSpawnLocation(r);
 		if Utility.GetDistance(npcBot:GetLocation(),loc)<900 and GetRuneStatus(r)==RUNE_STATUS_AVAILABLE then

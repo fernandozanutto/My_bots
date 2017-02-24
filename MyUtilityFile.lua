@@ -1,14 +1,28 @@
 
 MyUtility = {}
 
+function MyUtility.DistanceToClosestRune()
 
+	npcBot=GetBot()
+
+	local distance = 99999
+
+	for _,r in pairs(Utility.RuneSpots) do
+		local loc=GetRuneSpawnLocation(r);
+		if Utility.GetDistance(npcBot:GetLocation(),loc) < distance then
+			distance = Utility.GetDistance(npcBot:GetLocation(),loc)
+		end
+	end
+	return distance
+
+end
 function MyUtility.HasEscape(unit)
 
 	local npcBot = unit;
 
 	local name = npcBot:GetUnitName()
 
-	if  name == "npc_dota_hero_queenofpain" or 
+	if  name == "npc_dota_hero_queenofpain" or
 		name == "npc_dota_hero_puck" or
 		name == "npc_dota_hero_faceless_void" or
 		name == "npc_dota_hero_antimage" or
@@ -31,10 +45,10 @@ function MyUtility.HasInvisibility(unit)
 	local name = npcBot:GetUnitName()
 
 	if  name == "npc_dota_hero_bounty_hunter" or
-		name == "npc_dota_hero_riki" or 
-		name == "npc_dota_hero_clinkz" or 
-		name == "npc_dota_hero_riki" or 
-		name == "npc_dota_hero_broodmother" or 
+		name == "npc_dota_hero_riki" or
+		name == "npc_dota_hero_clinkz" or
+		name == "npc_dota_hero_riki" or
+		name == "npc_dota_hero_broodmother" or
 		name == "npc_dota_hero_weaver"
 		then
 
@@ -52,8 +66,8 @@ function MyUtility.HasDisable(unit)
 
 	local name = npcBot:GetUnitName()
 
-	if  name == "npc_dota_hero_lion" or 
-		name == "npc_dota_hero_vengefulspirit" or 
+	if  name == "npc_dota_hero_lion" or
+		name == "npc_dota_hero_vengefulspirit" or
 		name == "npc_dota_hero_earth"
 	then
 
@@ -70,10 +84,10 @@ function MyUtility.HasHeal(unit)
 	local name = npcBot:GetUnitName()
 
 	if  name == "npc_dota_hero_oracle" or
-		name == "npc_dota_hero_dazzle" or 
+		name == "npc_dota_hero_dazzle" or
 		name == "npc_dota_hero_warlock" or
-		name == "npc_dota_hero_omniknight" or 
-		name == "npc_dota_hero_abaddon" or 
+		name == "npc_dota_hero_omniknight" or
+		name == "npc_dota_hero_abaddon" or
 		name == "npc_dota_hero_necrolyte"
 	then
 		return true
@@ -91,11 +105,11 @@ function MyUtility.MoveToLane(lane)
 
 	if lane == 1 then
 		npcBot:Action_MoveToLocation(TopLane)
-	
+
 	elseif lane == 2 then
 		npcBot:Action_MoveToLocation(MidLane)
 
-	
+
 	elseif lane == 3 then
 		npcBot:Action_MoveToLocation(BotLane)
 
