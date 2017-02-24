@@ -14,11 +14,12 @@ end
 function GetDesire()
 	npcBot = GetBot()
 
-	print("numero de alvos: "..#npcBot.Targets)
+	if npcBot.Action == "Ganking" then
 
-	for _, target in pairs (npcBot.Target) do
-		if GetUnitToUnitDistance(npcBot, target)<1000 then
-			return 1;
+		for _, target in pairs (npcBot.Target) do
+			if GetUnitToUnitDistance(npcBot, target)<3000 then
+				return 1;
+			end
 		end
 	end
 

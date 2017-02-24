@@ -40,7 +40,8 @@ function GetDesire()
 		TimeToRuneSpawn = 120 - seconds
 	end
 
-	if npcBot.Action~="Ganking" or MyU.GetDistanceToClosestRune()<1000 then
+	if (npcBot.Action~="Ganking" and TimeToRuneSpawn<10) or (MyU.GetDistanceToClosestRune()<1000 and TimeToRuneSpawn<10) then
+		
 		return 0.5
 	end
 

@@ -69,7 +69,7 @@ function MyUtility.HasDisable(unit)
 	if  name == "npc_dota_hero_lion" or
 		name == "npc_dota_hero_vengefulspirit" or
 		name == "npc_dota_hero_earth" or
-		name = "npc_dota_hero_centaur"
+		name == "npc_dota_hero_centaur"
 	then
 
 		return true
@@ -102,7 +102,7 @@ function MyUtility.MoveToLane(lane)
 
 	local TopLane = Vector(-6300, 4100)
 	local MidLane = Vector(-540, -320)
-	local BotLane = Vector(5900, -5000)
+	local BotLane = Vector(6030, -4700)
 
 	if lane == 1 then
 		npcBot:Action_MoveToLocation(TopLane)
