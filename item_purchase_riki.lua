@@ -5,7 +5,7 @@ npcBot.ItemsToBuy = {
 	"item_tango",
 	"item_blight_stone"
 	"item_boots",
-	"item_magic_wand"
+	"item_magic_stick",
 	"item_blade_of_alacrity",
 	"item_blade_of_alacrity",
 	"item_robe",
