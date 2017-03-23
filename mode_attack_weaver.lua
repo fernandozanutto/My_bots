@@ -29,25 +29,25 @@ function GetDesire()
 	local desire =  mode_generic_attack.GetDesire();
 	local npcBot = GetBot()
 
-	if(npcBot.Target ~= nil)then	
+	if (npcBot.Target ~= nil) then
 
 		if npcBot.Target:HasModifier("modifier_weaver_swarm_debuff") or npcBot.Target:GetHealth() < npcBot.Target:GetMaxHealth()*0.6 then
-			desire = desire + 0.25
+			return desire + 0.25
 		end
 
 	end
-	
+
 	return desire
 end
 
 local function UseQ()
 	local npcBot=GetBot();
-	
+
 	local ability=npcBot:GetAbilityByName(Abilities[1]);
 	if ability==nil or (not ability:IsFullyCastable()) then
 		return false;
 	end
-	
+
 	if GetUnitToUnitDistance(npcBot.Target,npcBot) < ability:GetCastRange()-75 then
 		npcBot:Action_UseAbilityOnLocation(ability,npcBot.Target:GetLocation());
 		return true;
@@ -57,14 +57,14 @@ end
 
 local function UseW()
 	local npcBot = GetBot();
-	
+
 	local ability=npcBot:GetAbilityByName(Abilities[2]);
 
 	if ability==nil or (not ability:IsFullyCastable()) then
 		return false;
 	end
-	
-	
+
+
 	if (GetUnitToUnitDistance(npcBot, npcBot.Target) > npcBot:GetAttackRange() and npcBot:GetMana() > 100) then
 		NearEnemy = false
 		npcBot:Action_UseAbility(ability);
@@ -75,7 +75,6 @@ local function UseW()
 end
 
 local function GetCloseToTarget(target)
-	--print("getting close to target")
 
 	local npcBot = GetBot();
 
@@ -92,9 +91,9 @@ end
 function Think()
 
 	--mode_generic_attack.Think();
-	---print(NearEnemy)
+
 	local npcBot=GetBot();
-	
+
 	if (not npcBot.IsAttacking) or npcBot.Target==nil then
 		npcBot.IsAttacking=false;
 		return;
@@ -109,16 +108,16 @@ function Think()
 	end
 
 	if not NearEnemy then
-		--print("NOT NEAR")
+
 		UseW()
 		if(GetCloseToTarget(npcBot.Target)) then
 			NearEnemy = true
 		end
 		return;
 	end
-	
+
 	if NearEnemy then
-		--print("NEAR")
+
 		npcBot:Action_AttackUnit(npcBot.Target, false);
 		return;
 	end

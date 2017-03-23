@@ -40,13 +40,13 @@ local function LevelUp()
 	if #AbilityPriority==0 then
 		return;
 	end
-	
+
 	if DotaTime()<0 then
 		return;
 	end
 
     local npcBot = GetBot();
-	
+
 	local ability=npcBot:GetAbilityByName(AbilityPriority[1]);
 
 	if (ability~=nil and ability:CanAbilityBeUpgraded() and ability:GetLevel()<ability:GetMaxLevel()) then
@@ -93,15 +93,20 @@ end
 
 
 function AbilityUsageThink()
-	
+
 	local npcBot=GetBot();
 
 	if npcBot:GetAbilityPoints()>0 then
 		LevelUp();
 	end
-	
+
 	npcBot.Q = UseQ;
 	npcBot.W = UseW;
 	npcBot.R = UseR;
-	
+
+	if npcBot:GetCurrentActionType() == ""
+
+
+
+
 end

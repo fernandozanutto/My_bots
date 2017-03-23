@@ -1,15 +1,10 @@
 
-function UseQ()
-	npcBot = GetBot()
-
-	npcBot:Action_UseAbility()
-end
-
-
 function OnStart()
 	print ("URSA GOING ROSH")
 	rosh = nil
-	
+	npcBot=GetBot()
+	npcBot.RoshState = "going"
+
 end
 
 function OnEnd()
@@ -20,7 +15,7 @@ function GetDesire()
 
 	local npcBot = GetBot();
 
-	if (Utility.IsItemInInventory("item_lifesteal") and GetRoshanKillTime()>DotaTime()-660) and npcBot:GetLevel()>=6 then
+	if (Utility.IsItemInInventory("item_helm_of_the_dominator") and GetRoshanKillTime()>DotaTime()-660) and npcBot:GetLevel()>=6 then
 		npcBot.IsRoshing = true;
 		return 0.3
 	end
@@ -33,9 +28,9 @@ function Think()
 
 	local npcBot = GetBot()
 
-	print(npcBot:GetUnitName())
-	
-	print(npcBot.RoshState)
+	--print(npcBot:GetUnitName())
+
+	--print(npcBot.RoshState)
 
 	if not npcBot.IsRoshing then
 		return
@@ -52,8 +47,8 @@ function Think()
 	end
 
 	if npcBot.RoshState == "roshing" then
-		
-		npcBot.W();
+
+		npcBot.W()
 
 		if npcBot:HasModifier("modifier_ursa_overpower") and npcBot:GetHealth()<npcBot:GetMaxHealth()*0.5 then
 			npcBot.R()
@@ -62,6 +57,7 @@ function Think()
 	end
 
 	local distance = GetUnitToLocationDistance(npcBot, Utility.ROSHAN)
+	
 	print(distance)
 	if distance > 500 then
 		npcBot.RoshState = "going"
@@ -72,7 +68,7 @@ function Think()
 	end
 
 	if distance < 200 then
-		
+
 		near = npcBot:GetNearbyCreeps(400, true);
 
 		if near ~= nil and #near~=0 then
@@ -85,10 +81,10 @@ function Think()
 					npcBot.RoshState = "roshing"
 				end
 			end
-		else 
+		else
 			print("nenhum creep")
 		end
-		
+
 	end
 
 end

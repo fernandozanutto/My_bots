@@ -1,11 +1,8 @@
 MyU = require(GetScriptDirectory().."/MyUtilityFile")
 
-
 local AlliesTopLane = {}
 local AlliesMidLane = {}
 local AlliesBotLane = {}
-
-local PotentialTargets = {}
 
 local Targets = {}
 local LaneToGank = nil
@@ -65,7 +62,7 @@ function GetLaneToGank()
 		local desire = 1;
 
 		if #lane ~= 0 and lane~=nil then
-			for _, ally in pairs(lane) do
+			for x, ally in pairs(lane) do
 
 				if ally ~= nil then
 
@@ -113,7 +110,7 @@ function GetLaneToGank()
 
 						Target[x] = EnemiesNearAllies
 					else
-						print("nenhum inimigo perto")
+						print("nenhum inimigo perto, lane: " .. x)
 					end
 
 				end
