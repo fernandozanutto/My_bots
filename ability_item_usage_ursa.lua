@@ -104,7 +104,7 @@ function AbilityUsageThink()
 	npcBot.W = UseW;
 	npcBot.R = UseR;
 
-	if npcBot:GetCurrentActionType() == ""
+	npcBot:Action_UseAbility(GetItemByName("item_phase_boots"));
 
 
 
